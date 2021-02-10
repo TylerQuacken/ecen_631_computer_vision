@@ -25,6 +25,7 @@ while True:
 
     elif inputCounter == 2:
         processedImage = cv2.Canny(frame, 100, 200)
+        processedImage = cv2.cvtColor(processedImage, cv2.COLOR_GRAY2BGR)
 
     elif inputCounter == 3:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -87,7 +88,7 @@ while True:
         retProcessed = ret0
         
     cv2.imshow("Cam 0", processedImage)
-    # vout.write(processedImage)
+    vout.write(processedImage)
     
     if cv2.waitKey(1) & 0xFF == ord(' '):
         inputCounter += 1
