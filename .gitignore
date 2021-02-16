@@ -1,2 +1,6 @@
 *.py~
+*.jpg
+*.jpeg
+*.png
+
 /__pycache
