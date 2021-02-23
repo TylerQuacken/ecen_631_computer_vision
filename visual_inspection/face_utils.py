@@ -64,6 +64,8 @@ class FaceClassifier():
 
         for i in range(detections.shape[2]):
             confidence = detections[0, 0, i, 2]
+            from IPython import embed
+            embed()
 
             if confidence > self.confidenceMin:
                 success == True
