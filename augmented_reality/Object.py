@@ -59,12 +59,10 @@ class Object():
 
         # for i in range(len(imgPoints)):
         #     cv2.circle(image, tuple(imgPoints[i, :]), 10, (0, 0, 255), -1)
-        # embed()
 
         for i in range(len(lines)):
             endPointNums = lines[i, :]
             endPoints = imgPoints[endPointNums, :]
-            # embed()
             cv2.line(image, tuple(endPoints[0, :]), tuple(endPoints[1, :]),
                      (0, 0, 255), 4)
 

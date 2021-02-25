@@ -16,8 +16,7 @@ chessPoints[:, :2] = np.mgrid[:chessXPoints, :chessYPoints].T.reshape(-1, 2)
 object3d = Object()
 arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 arucoParams = cv2.aruco.DetectorParameters_create()
-arucoPoints = np.array([[0, 0, 0], [7.25, 0, 0], [-0.06, -4.875, 0],
-                        [17.1250, -4.8, 0]])
+arucoPoints = np.array([[0, 0], [7.25, 0], [-0.06, -4.875], [17.1250, -4.8]])
 
 
 def find_chessboard_corners(image):
@@ -79,6 +78,7 @@ def get_R_T_from_aruco(corners):
     zVec = zVec / np.linalg.norm(zVec)
     xVec = R01 / np.linalg.norm(R01)
     yVec = np.cross(zVec, xVec)
+    yVec = yVec / np.linalg.norm(yVec)
 
     R = np.zeros([3, 3])
     R[:, 0] = xVec
@@ -88,9 +88,9 @@ def get_R_T_from_aruco(corners):
     RVec, _ = cv2.Rodrigues(R)
     T = TVecs[0, :]
 
-    # for i in range(TVecs.shape[0]):
-    #     cv2.aruco.drawAxis(image, camera.cameraMatrix, camera.distortion,
-    #                        RVecAruco[i, :, :], TVecs[i, :], 0.7)
+    for i in range(TVecs.shape[0]):
+        cv2.aruco.drawAxis(image, camera.cameraMatrix, camera.distortion,
+                           RVecAruco[i, :, :], TVecs[i, :], 0.7)
     return RVec, T
 
 
@@ -101,6 +101,12 @@ def get_R_T_from_single_aruco(corners):
     T = TVecs[0, 0, :]
     RVec = RVecAruco[0, 0, :]
     return RVec, T
+
+
+def get_homography_from_single_aruco(corners):
+    singleArucoPoints = np.array([[[1, -1], [-1, -1], [-1, 1], [1, 1]]])
+    graphy, _ = cv2.findHomography(singleArucoPoints, corners[0], cv2.RANSAC)
+    return graphy
 
 
 while True:
@@ -124,22 +130,25 @@ lastUpdate = time.time()
 while True:
 
     image = camera.get_image()
-    # ret, corners, ids = find_aruco(image, numNeeded=1)
-    ret, corners = find_chessboard_corners(image)
+    imageUndist = camera.get_image_undistort()
+    ret, corners, ids = find_aruco(image, numNeeded=1)
+    # ret, corners = find_chessboard_corners(image)
 
     if ret:
         # ret, RVec, T = cv2.solvePnP(chessPoints, corners, camera.cameraMatrix,
         #                             camera.distortion)
         # RVec, T = get_R_T_from_aruco(corners)
         RVec, T = get_R_T_from_single_aruco(corners)
+        # graphy = get_homography_from_single_aruco(corners)
 
-        image = object3d.draw_object_on_image(image, camera, RVec, T)
+        imageUndist = object3d.draw_object_on_image(imageUndist, camera, RVec,
+                                                    T)
 
         dt = lastUpdate - time.time()
         lastUpdate = time.time()
         object3d.update(RVec, dt)
 
-    flipped = np.flip(image, axis=1)
+    flipped = np.flip(imageUndist, axis=1)
     cv2.imshow("camera", flipped)
 
     cv2.waitKey(30)
