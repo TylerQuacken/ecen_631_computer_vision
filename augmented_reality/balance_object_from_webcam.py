@@ -39,23 +39,33 @@ def find_chessboard_corners(image):
     return ret, corners
 
 
-def find_aruco(image):
+def find_aruco(image, numNeeded=4):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     cornersDetected, ids, rejected = cv2.aruco.detectMarkers(
         gray, arucoDict, parameters=arucoParams)
 
-    if len(cornersDetected) < 4:
+    # embed()
+    corners = []
+    idDetected = []
+
+    if len(cornersDetected) < numNeeded:
         ret = False
-        corners = []
         print(len(cornersDetected))
     else:
-        corners = []
         for i in range(4):
-            index = np.squeeze(np.where(ids == i))[0]
-            corners.append(cornersDetected[index])
+            index = np.where(ids == i)[0]
+            if index.size == 0:
+                index = None
+            else:
+                index = index[0]
+                corners.append(cornersDetected[index])
+                idDetected.append(ids[index])
         ret = True
 
-    return ret, corners, ids
+    if numNeeded == 1 and ret and idDetected[0] != 0:
+        ret = False
+
+    return ret, corners, idDetected
 
 
 def get_R_T_from_aruco(corners):
@@ -84,6 +94,15 @@ def get_R_T_from_aruco(corners):
     return RVec, T
 
 
+def get_R_T_from_single_aruco(corners):
+    RVecAruco, TVecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+        corners, 2, camera.cameraMatrix, camera.distortion)
+
+    T = TVecs[0, 0, :]
+    RVec = RVecAruco[0, 0, :]
+    return RVec, T
+
+
 while True:
     # Calibrate ground
     image = camera.get_image()
@@ -92,22 +111,33 @@ while True:
         calibImage = image
         break
 
-ret, corners, ids = find_aruco(calibImage)
-RVec, T = get_R_T_from_aruco(corners)
+ret, corners, ids = find_aruco(calibImage, numNeeded=1)
+# RVec, T = get_R_T_from_aruco(corners)
+RVec, T = get_R_T_from_single_aruco(corners)
+# ret, corners = find_chessboard_corners(image)
+# ret, RVec, T = cv2.solvePnP(chessPoints, corners, camera.cameraMatrix,
+#                             camera.distortion)
 object3d.set_ground(RVec)
+
+lastUpdate = time.time()
 
 while True:
 
     image = camera.get_image()
-    ret, corners, ids = find_aruco(image)
-    # ret, corners = find_chessboard_corners(image)
+    # ret, corners, ids = find_aruco(image, numNeeded=1)
+    ret, corners = find_chessboard_corners(image)
 
     if ret:
         # ret, RVec, T = cv2.solvePnP(chessPoints, corners, camera.cameraMatrix,
         #                             camera.distortion)
-        RVec, T = get_R_T_from_aruco(corners)
+        # RVec, T = get_R_T_from_aruco(corners)
+        RVec, T = get_R_T_from_single_aruco(corners)
 
         image = object3d.draw_object_on_image(image, camera, RVec, T)
+
+        dt = lastUpdate - time.time()
+        lastUpdate = time.time()
+        object3d.update(RVec, dt)
 
     flipped = np.flip(image, axis=1)
     cv2.imshow("camera", flipped)
