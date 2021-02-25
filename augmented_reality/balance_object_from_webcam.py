@@ -85,6 +85,18 @@ def get_R_T_from_aruco(corners):
 
 
 while True:
+    # Calibrate ground
+    image = camera.get_image()
+    cv2.imshow("camera", image)
+    if cv2.waitKey(1) & 0xFF == ord(' '):
+        calibImage = image
+        break
+
+ret, corners, ids = find_aruco(calibImage)
+RVec, T = get_R_T_from_aruco(corners)
+object3d.set_ground(RVec)
+
+while True:
 
     image = camera.get_image()
     ret, corners, ids = find_aruco(image)

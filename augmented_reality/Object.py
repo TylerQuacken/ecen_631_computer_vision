@@ -9,6 +9,10 @@ class Object():
         self.velocity = np.zeros([3])
         self.xRange = np.array([0., 11.])
         self.yRange = np.array([-8., 0.])
+        self.RVec = []
+
+    def set_ground(self, RVec):
+        self.groundR = RVec
 
     def update(self, RVec):
         pass
