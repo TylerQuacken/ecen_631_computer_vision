@@ -17,21 +17,19 @@ class Object():
 
     def update(self, RVec, dt):
         R, _ = cv2.Rodrigues(RVec)
-        gVecWorld = np.array([0., 0., -9.8])
+        gVecWorld = 1.5 * np.array([0., 0., -9.8])
         gVecCamera = self.groundR.T @ gVecWorld
         gVecPlane = R @ gVecCamera
 
-        accel = gVecPlane * np.array([1., 1., 0.])
+        accel = gVecPlane * np.array([1., -1., 0.])
         self.velocity += accel * dt
         self.position += self.velocity * dt
         tooHigh = np.where(self.position > self.positionMax)
         self.position[tooHigh] = self.positionMax[tooHigh]
-        self.velocity[tooHigh] = 0.0
+        self.velocity[tooHigh] = -0.5 * self.velocity[tooHigh]
         tooLow = np.where(self.position < self.positionMin)
         self.position[tooLow] = self.positionMin[tooLow]
-        self.velocity[tooLow] = 0.0
-
-        print(self.position)
+        self.velocity[tooLow] = -0.5 * self.velocity[tooLow]
 
     def get_points(self):
         # cube points
@@ -49,7 +47,7 @@ class Object():
         lines = np.array([[0, 1], [0, 4], [0, 3], [1, 2], [1, 5], [2, 6],
                           [2, 3], [3, 7], [4, 5], [4, 7], [5, 6], [6, 7]])
 
-        return points, lines
+        return points * 25, lines
 
     def draw_object_on_image(self, image, camera, RVec, T):
         points, lines = self.get_points()
@@ -64,6 +62,6 @@ class Object():
             endPointNums = lines[i, :]
             endPoints = imgPoints[endPointNums, :]
             cv2.line(image, tuple(endPoints[0, :]), tuple(endPoints[1, :]),
-                     (0, 0, 255), 4)
+                     (0, 0, 255), 2)
 
         return image

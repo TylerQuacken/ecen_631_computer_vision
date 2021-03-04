@@ -11,12 +11,14 @@ camera = LogitechWebcam()
 chessXPoints = 9
 chessYPoints = 7
 chessPoints = np.zeros((chessXPoints * chessYPoints, 3), np.float32)
-chessPoints[:, :2] = np.mgrid[:chessXPoints, :chessYPoints].T.reshape(-1, 2)
+chessPoints[:, :2] = 24.5 * np.mgrid[:chessXPoints, :chessYPoints].T.reshape(
+    -1, 2)
 
 object3d = Object()
 arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 arucoParams = cv2.aruco.DetectorParameters_create()
-arucoPoints = np.array([[0, 0], [7.25, 0], [-0.06, -4.875], [17.1250, -4.8]])
+arucoPoints = 25.4 * np.array([[0, 0], [7.25, 0], [-0.06, -4.875],
+                               [17.1250, -4.8]])
 
 
 def find_chessboard_corners(image):
@@ -69,7 +71,7 @@ def find_aruco(image, numNeeded=4):
 
 def get_R_T_from_aruco(corners):
     RVecAruco, TVecs, _ = cv2.aruco.estimatePoseSingleMarkers(
-        corners, 2, camera.cameraMatrix, camera.distortion)
+        corners, 50, camera.cameraMatrix, camera.distortion)
 
     TVecs = TVecs.squeeze()
     R01 = TVecs[1, :] - TVecs[0, :]
@@ -96,7 +98,7 @@ def get_R_T_from_aruco(corners):
 
 def get_R_T_from_single_aruco(corners):
     RVecAruco, TVecs, _ = cv2.aruco.estimatePoseSingleMarkers(
-        corners, 2, camera.cameraMatrix, camera.distortion)
+        corners, 50, camera.cameraMatrix, camera.distortion)
 
     T = TVecs[0, 0, :]
     RVec = RVecAruco[0, 0, :]
@@ -143,6 +145,7 @@ while True:
 
         imageUndist = object3d.draw_object_on_image(imageUndist, camera, RVec,
                                                     T)
+        print(T)
 
         dt = lastUpdate - time.time()
         lastUpdate = time.time()
