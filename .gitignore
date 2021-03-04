@@ -3,5 +3,5 @@
 *.jpeg
 *.png
 *.bmp
-/images
-/__pycache
+images/
+__pycache__/
