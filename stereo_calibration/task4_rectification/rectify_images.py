@@ -35,6 +35,10 @@ cv2.imwrite("right_points_before.jpg", imageR)
 R1, R2, P1, P2, Q, _, _ = cv2.stereoRectify(cameraL, distortionL, cameraR,
                                             distortionR, (width, height), R, T)
 
+data = {'R1': R1, 'R2': R2, 'P1': P1, 'P2': P2, 'Q': Q}
+sio.savemat("rectification_params.mat", data)
+print("saved rectification_params to file")
+
 map1L, map2L = cv2.initUndistortRectifyMap(cameraL, distortionL, R1, P1,
                                            (width, height), cv2.CV_32FC1)
 map1R, map2R = cv2.initUndistortRectifyMap(cameraR, distortionR, R2, P2,

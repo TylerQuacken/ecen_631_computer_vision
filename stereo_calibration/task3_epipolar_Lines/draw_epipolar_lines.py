@@ -58,4 +58,5 @@ cv2.imwrite("left_points.jpg", imageL)
 cv2.imwrite("right_points.jpg", imageR)
 cv2.imshow("Left", imageL)
 cv2.imshow("Right", imageR)
+
 cv2.waitKey()

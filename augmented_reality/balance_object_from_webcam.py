@@ -30,9 +30,9 @@ def find_chessboard_corners(image):
     # cornerImg = image
 
     if ret:
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10,
-                    0.01)
-        corners = cv2.cornerSubPix(gray, corners, (15, 15), (-1, -1), criteria)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30,
+                    0.001)
+        corners = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)
         # cornerImg = cv2.drawChessboardCorners(image,
         #                                       (chessXPoints, chessYPoints),
         #                                       corners, ret)
