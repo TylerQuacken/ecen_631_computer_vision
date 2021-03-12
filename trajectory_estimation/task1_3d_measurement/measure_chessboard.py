@@ -64,12 +64,17 @@ cornersRu = cv2.undistortPoints(cornersR, cameraR, distortionR, R=R2,
 
 # create vectors of points [x, y, disparity]
 disparity = cornersLu[:, 0] - cornersRu[:, 0]
-corners = np.zeros([4, 1, 3])
-corners[:, 0, :2] = cornersLu
-corners[:, 0, 2] = disparity
+points2dL = np.zeros([4, 1, 3])
+points2dL[:, 0, :2] = cornersLu
+points2dL[:, 0, 2] = disparity
+points2dR = np.zeros([4, 1, 3])
+points2dR[:, 0, :2] = cornersRu
+points2dR[:, 0, 2] = disparity
 
-points = cv2.perspectiveTransform(corners, Q)
-print(points.squeeze())
+pointsL = cv2.perspectiveTransform(points2dL, Q).squeeze()
+print(pointsL)
+pointsR = cv2.perspectiveTransform(points2dR, Q).squeeze()
+print(pointsR)
 
 for i in range(4):
     cv2.circle(imageL,
