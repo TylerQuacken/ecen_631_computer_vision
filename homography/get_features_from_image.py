@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 if __name__ == '__main__':
-    fileName = "./images/right_screen.png"
+    fileName = "./images/left_screen_rect.png"
     image = cv2.imread(fileName)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 
     cv2.imshow("points", image)
     cv2.imwrite("./points.png", image)
-    cv2.waitKey(1000)
+    cv2.waitKey(0)
